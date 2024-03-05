@@ -1,0 +1,32 @@
+#app { white-space: pre-line; }
+
+.pointer {
+  cursor: pointer;
+  user-select: none;
+}
+
+.table-sm {
+  font-size: 14px !important;
+}
+
+.table-responsive{
+  height:calc(100vh - 300px);  
+  overflow-y:scroll;
+}
+
+thead tr:nth-child(1) th{
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+body {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.seccond-line {
+  height: 40px;
+  padding-top: 5px;
+}
