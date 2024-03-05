@@ -11,21 +11,40 @@ from datetime import datetime, timedelta
 from flask import request
 from flask import Flask
 import flask
+import socket
+
 app = Flask(__name__)
+
+# get current pc (local) IP address
+hostname = socket.gethostname()
+IPAddr = socket.gethostbyname(hostname)
+
+isLocal = False
+
+allMyIps = [i[4][0] for i in socket.getaddrinfo(socket.gethostname(), None)]
+
+# if allMyIps contains '192.168.88.10' the it is local
+
+if '192.168.88.10' in allMyIps:
+  isLocal = True
+  print("Running on local network")
+
+server = "ADM1-PC\\PROFIT"
+
+if isLocal:
+  server = "DESKTOP-UOK4IUG\\SQLEXPRESS"
 
 def connect(corporation):
   cnxn_str = ''
   
   if corporation == 'RELEVECA':
     cnxn_str = ("Driver={SQL Server};"
-              "Server=ADM1-PC\PROFIT;"
-              #"Server=MARTIN\SQLEXPRESS;"
+              f"Server={server};"
               "Database=RVCA_A;"
               "Trusted_Connection=yes;")
   elif corporation == 'LYC':
     cnxn_str = ("Driver={SQL Server};"
-              "Server=ADM1-PC\PROFIT;"
-              #"Server=MARTIN\SQLEXPRESS;"
+              f"Server={server};"
               "Database=LYC_A;"
               "Trusted_Connection=yes;")
 
@@ -227,5 +246,7 @@ def perIdRange():
     """
     return SQLGet(query, corporation)
 
-#app.run(debug=True, port=8081)
-app.run(host='0.0.0.0', port=8080)
+if isLocal:
+  app.run(debug=True, port=8081)
+else:
+  app.run(host='0.0.0.0', port=8080)

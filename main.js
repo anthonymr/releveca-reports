@@ -33,8 +33,8 @@ Vue.createApp({
       store_filter: '',
 
       corporation: '',
-      //route: 'http://localhost:8081',
-      route: 'http://192.168.0.162:8080',
+      route: 'http://localhost:8081',
+      //route: 'http://192.168.0.162:8080',
 
       order_duration: 5,
       order_desired_stock: 6, 
