@@ -107,7 +107,7 @@ const ReportOrders = {
   
     computed: {
       tableHeight() {
-        return `${this.screenHeightPx - 180}px`;
+        return `${this.screenHeightPx - 130}px`;
       },
   
       computedItems() {
