@@ -1,6 +1,16 @@
-Vue.createApp({
+const app = Vue.createApp({
   data() {
     return {
+      currentReport: null,
+      drawer: false,
+      tableItems: [],
+      loadingData: false,
+
+
+
+
+
+
       date_from: '',
       date_to: '',
       queryType: '',
@@ -42,6 +52,157 @@ Vue.createApp({
   },
 
   methods: {
+    generateReport(report) {
+      this.currentReport = report;
+      this.drawer = false;
+
+      if(this.currentReport.report == 'Productos vendidos') this.getSoldProducts();
+      if(this.currentReport.report == 'Productos sin movimiento') this.getNoMovementProducts();
+      if(this.currentReport.report == 'Sugerencia de compra') this.getSuggestionToBuy();
+      if(this.currentReport.report == 'Rango de notas de entrega') this.getOrders();
+    },
+
+    async doQuery(path) {
+      try {
+        const response = await axios.get(this.getRoute(path), { params: this.currentReport })
+        return JSON.parse(response.data);
+      } catch (error) {
+        console.error(error);
+        return [];
+      }
+    },
+
+    async getSoldProducts() {
+      this.loadingData = true;
+      this.tableItems = await this.doQuery('/');
+      this.loadingData = false;
+    },
+
+    async getNoMovementProducts() {
+      this.loadingData = true;
+      this.tableItems = await this.doQuery('/no-sales-items');
+      this.loadingData = false;
+    },
+
+    async getSuggestionToBuy() {
+      this.loadingData = true;
+      const suggestionToBuy = await this.doQuery('/');
+      const noSalesItems = await this.doQuery('/no-sales-items');
+
+      noSalesItems.forEach(item => {
+        if(suggestionToBuy.findIndex(transaction => transaction.item == item.item) == -1){
+          suggestionToBuy.push({
+            ...item,
+            amount_to_buy: '',
+          });
+        }
+      });
+
+      this.tableItems = suggestionToBuy;
+      this.loadingData = false;
+    },
+
+    async getOrders() {
+      this.loadingData = true;
+      this.tableItems = await this.doQuery('/per-id-range');
+      this.loadingData = false;
+    },
+
+
+
+
+
+
+
+    getasdasdData() {
+      switch (this.queryType) {
+        case '1': // Productos vendidos
+          axios.get(this.getRoute('/'), { params: { from: this.date_from, to: this.date_to, corporation: this.corporation } })
+          .then(response => {
+            this.current_search = `Movimientos entre ${this.date_from} y ${this.date_to}`;
+            this.transactions = JSON.parse(response.data);
+            this.sortTransactionsBy(this.sorting_by);
+          })
+          .catch(error => console.error(error));
+        break;
+          case '2': // Productos sin movimiento
+          axios.get(this.getRoute('/no-sales-items'), { params: { from: this.date_from, to: this.date_to, corporation: this.corporation } })
+          .then(response => {
+            this.current_search = `Movimientos entre ${this.date_from} y ${this.date_to}`;
+            this.transactions = JSON.parse(response.data);
+            this.sortTransactionsBy(this.sorting_by);
+          })
+          .catch(error => console.error(error));
+        break;
+        case '3': // Sugerencia de compra
+        axios.get(this.getRoute('/'), { params: { from: this.date_from + '-01', to: this.currentDate, corporation: this.corporation } })
+        .then(response => {
+          this.current_search = `Sugerencia de compra evaluando desde ${this.date_from}`;
+          this.transactions = JSON.parse(response.data);
+          this.transactions = this.transactions.map(item => {
+            return {
+              ...item,
+              amount_to_buy: '',
+            }
+          });
+
+          axios.get(this.getRoute('/no-sales-items'), { params: { from: this.date_from + '-01', to: this.currentDate, corporation: this.corporation } })
+          .then(response => {
+            let noSaleTransactions = JSON.parse(response.data);
+
+            // add to transactions the items that have not been sold
+            noSaleTransactions.forEach(item => {
+              if(this.transactions.findIndex(transaction => transaction.item == item.item) == -1){
+                this.transactions.push({
+                  ...item,
+                  amount_to_buy: '',
+                });
+              }
+            });
+
+            this.sortTransactionsBy(this.sorting_by);
+          })
+          .catch(error => console.error(error));
+        })
+        .catch(error => console.error(error));
+        break;
+        case '4': // Movimientos por rango de IDs
+        axios.get(this.getRoute('/per-id-range'), { params: { from: this.id_from, to: this.id_to, corporation: this.corporation } })
+        .then(response => {
+          this.current_search = `Movimientos entre ${this.id_from} y ${this.id_to}`;
+          this.transactions = JSON.parse(response.data);
+          this.sorting_by = 'item';
+          this.sortTransactionsBy(this.sorting_by);
+        })
+      break;
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     transactionPerItem(item) {
       return this.transactions.filter(transaction => transaction.item == item)[0];
     },
@@ -462,4 +623,20 @@ Vue.createApp({
       return this.queryType === '3' ? 'month' : 'date';
     }
   }
-}).mount('#app')
+})
+
+const { createVuetify } = Vuetify;
+
+const vuetify = createVuetify();
+
+app.use(vuetify);
+
+app.component('report-menu', ReportMenu);
+app.component('report-configuration', ReportConfiguration);
+app.component('report-sold-products', ReportSoldProducts);
+app.component('report-no-movement-products', ReportNoMovementProducts);
+app.component('report-suggestion-to-buy', ReportSuggestionToBuy);
+app.component('report-orders', ReportOrders);
+app.component('report-table-menu', ReportTableMenu);
+
+app.mount('#app');

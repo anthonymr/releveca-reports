@@ -25,14 +25,14 @@ allMyIps = [i[4][0] for i in socket.getaddrinfo(socket.gethostname(), None)]
 
 # if allMyIps contains '192.168.88.10' the it is local
 
-if '192.168.88.10' in allMyIps:
+if '192.168.88.16' in allMyIps:
   isLocal = True
   print("Running on local network")
 
 server = "ADM1-PC\\PROFIT"
 
 if isLocal:
-  server = "DESKTOP-UOK4IUG\\SQLEXPRESS"
+  server = "localhost\\SQLEXPRESS"
 
 def connect(corporation):
   cnxn_str = ''

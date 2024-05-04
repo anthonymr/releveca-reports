@@ -6,23 +6,117 @@
   <title>Document</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3.6.3/dist/vuetify.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet" />
 
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" defer integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" defer integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" defer integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.1/xlsx.full.min.js" defer></script> 
-
+  
   <script src="helpers.js" defer></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.6.3/dist/vuetify.min.js" defer></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js" defer></script>
-  <script src="components/ProductosVendidos.js" defer></script>
+
+  <script src="components/ReportMenu.js" defer></script>
+  <script src="components/ReportConfiguration.js" defer></script>
+  <script src="components/ReportNoMovementProducts.js" defer></script>
+  <script src="components/ReportOrders.js" defer></script>
+  <script src="components/ReportSuggestionToBuy.js" defer></script>
+  <script src="components/ReportTableMenu.js" defer></script>
+  
+  <script src="components/ReportSoldProducts.js" defer></script>
+  
   <script src="main.js" defer></script>
 
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="container-fluid">
   <div id="app">
-    <h4 class="my-3">Movimientos de artículos entre fechas:</h4>
+    <v-layout>
+      <v-app-bar
+        elevation="0"
+        class="border-b-thin"
+      >
+        <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" color="primary"></v-app-bar-nav-icon>
+        <v-toolbar-title v-if="currentReport?.report">
+          {{currentReport?.report}}
+          <v-chip
+            v-if="currentReport?.corporation"
+            size="small"
+            class="ml-3"
+            :color="currentReport?.corporation === 'LYC' ? 'red' : 'orange'"
+          >
+            {{currentReport?.corporation}}
+          </v-chip>
+          <v-chip class="ml-3" size="small">
+            {{currentReport?.from}}
+            <span v-if="currentReport?.from" class="mx-2">-</span>
+            {{currentReport?.to}}
+          </v-chip>
+        </v-toolbar-title>
+        <v-toolbar-title v-else>Seleccione un reporte en el menú</v-toolbar-title>
+      </v-app-bar>
+
+      <v-navigation-drawer
+        v-model="drawer"
+      >
+        <report-configuration
+          @generate-report="generateReport"
+        />
+      </v-navigation-drawer>
+
+      <v-main scrollable>
+        <span>
+          <report-sold-products
+            v-if="currentReport?.report === 'Productos vendidos'"
+            :items="tableItems"
+            :current-report="currentReport"
+          />
+        </span>
+
+        <span>
+          <report-no-movement-products
+            v-if="currentReport?.report === 'Productos sin movimiento'"
+            :items="tableItems"
+            :current-report="currentReport"
+          />     
+        </span>   
+
+        <span>
+          <report-suggestion-to-buy
+            v-if="currentReport?.report === 'Sugerencia de compra'"
+            :items="tableItems"
+            :current-report="currentReport"
+          />
+        </span>
+
+        <span>
+          <report-orders
+            v-if="currentReport?.report === 'Rango de notas de entrega'"
+            :items="tableItems"
+            :current-report="currentReport"
+          />
+        </span>
+      </v-main>
+    </v-layout>
+
+    <v-snackbar
+      v-model="loadingData"
+    >
+      Generando reporte...
+    </v-snackbar>
+
+
+
+
+
+
+
+
+
+
     <form>
       <!-- PRIMERA LINEA -->
       <div class="row">

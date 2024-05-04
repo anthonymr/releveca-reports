@@ -30,3 +30,41 @@ body {
   height: 40px;
   padding-top: 5px;
 }
+
+
+
+
+html {
+  overflow: hidden;
+}
+
+ul.v-pagination__list {
+  margin: 0 !important;
+}
+
+.date-input {
+  border: 1px solid rgb(168, 168, 168);
+  width: 100%;
+  height: 40px;
+  color: rgba(0, 0, 0, 0.87);
+  border-radius: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.table-input {
+  border: 1px solid rgb(168, 168, 168);
+  width: 100%;
+  color: rgba(0, 0, 0, 0.87);
+  border-radius: 4px;
+  padding-left: 3px;
+  padding-right: 3px;
+  background-color: white;
+}
+
+header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
