@@ -170,17 +170,23 @@ def index():
             left join art on filtered.item = art.[co_art]
             left join prov on art.co_prov = prov.co_prov
             left join sub_lin on sub_lin.co_subl = art.co_subl
-          left join (
-          SELECT 
-            co_art, 
-            total_art,
-            MAX(fecha) as fecha
-          FROM 
+          
+        left join (
+        SELECT 
+            x.co_art, 
+            todos.total_art,
+            x.fecha
+        FROM 
+        (
+            SELECT 
+                co_art,
+                max(fecha) as fecha
+            FROM 
             todos
-          GROUP BY 
-            co_art, 
-            total_art
-          ) as last_purchase on art.co_art = last_purchase.co_art
+			group by co_art
+        ) as x
+        left join todos on todos.co_art = x.co_art and todos.fecha = x.fecha
+        ) as last_purchase on filtered.item = last_purchase.co_art
     """
     return SQLGet(query, corporation)
 
