@@ -135,8 +135,13 @@ def index():
               FROM notas_recientes
               WHERE co_art = notas_recientes.co_art
             )
-          )
+          ),
 
+      todos AS (
+          SELECT * FROM ordenes_recientes
+          UNION ALL
+          SELECT * FROM notas_recientes
+      )
           
             select
               filtered.*,
@@ -171,7 +176,7 @@ def index():
             total_art,
             MAX(fecha) as fecha
           FROM 
-            uniones
+            todos
           GROUP BY 
             co_art, 
             total_art
