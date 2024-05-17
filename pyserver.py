@@ -117,11 +117,27 @@ def index():
                       nr.fact_num = rn.fact_num
               )
       ),
-      uniones AS (
-          SELECT * FROM ordenes_recientes
-          UNION ALL
-          SELECT * FROM notas_recientes
-      )
+
+
+          uniones AS (
+            SELECT *
+            FROM ordenes_recientes
+            WHERE fecha = (
+              SELECT MAX(fecha)
+              FROM ordenes_recientes
+              WHERE co_art = ordenes_recientes.co_art
+            )
+            UNION ALL
+            SELECT *
+            FROM notas_recientes
+            WHERE fecha = (
+              SELECT MAX(fecha)
+              FROM notas_recientes
+              WHERE co_art = notas_recientes.co_art
+            )
+          )
+
+          
             select
               filtered.*,
               art.art_des as description,

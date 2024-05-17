@@ -4,6 +4,8 @@ const ReportSuggestionToBuy = {
         <v-data-table
           :items="computedItems"
           :height="tableHeight"
+          :items-per-page="-1"
+          :sort-by="sortBy"
           fixed-header
           mobile-breakpoint="xs"
           density="compact"
@@ -26,7 +28,7 @@ const ReportSuggestionToBuy = {
                   <div class="d-flex align-center justify-between">
                     <span
                       class="cursor-pointer text-caption font-weight-bold mt-2 d-flex justify-center align-center"
-                      @click="() => toggleSort(column)"
+                      @click="sort(toggleSort, column)"
                     >
                       {{ column.title }}
                       <v-icon v-if="isSorted(column)" size="16" :icon="getSortIcon(column)"></v-icon>
@@ -34,11 +36,15 @@ const ReportSuggestionToBuy = {
                   </div>
                   <div class="mt-2">
                     <select v-if="column.key === 'Sugerencia'" class="table-input mb-2" @change="filters[column.key] = $event.target.value">
-                        <option value="">Todos</option>
-                        <option value="¡comprar!">¡comprar!</option>
-                        <option value="comprar">comprar</option>
-                        <option value="¡sobre existencia!">¡sobre existencia!</option>
-                        <option value="no comprar">no comprar</option>
+                      <option value="">Todos</option>
+                      <option value="¡comprar!">¡comprar!</option>
+                      <option value="comprar">comprar</option>
+                      <option value="¡sobre existencia!">¡sobre existencia!</option>
+                      <option value="no comprar">no comprar</option>
+                    </select>
+                    <select v-else-if="column.key === 'Sublínea'" class="table-input mb-2" @change="filters[column.key] = $event.target.value">
+                      <option value="">Todos</option>
+                      <option v-for="subline in differentSublines" :value="subline">{{ subline }}</option>
                     </select>
                     <input
                         v-else
@@ -124,6 +130,8 @@ const ReportSuggestionToBuy = {
           'Meses de stock': '',
           'Sugerencia': '',
         },
+
+        sortBy: [{ key: 'Sublínea', type: 'asc' }],
   
         screenHeightPx: 0,
 
@@ -141,6 +149,10 @@ const ReportSuggestionToBuy = {
     },
   
     methods: {
+      sort(toggleSort, column) {
+        toggleSort(column);
+      },
+
       onScreenResize() {
         this.screenHeightPx = window.innerHeight;
       },
@@ -188,6 +200,10 @@ const ReportSuggestionToBuy = {
     },
   
     computed: {
+      differentSublines() {
+        return [...new Set(this.items.map(item => item.sub_line))];
+      },
+
       tableHeight() {
         return `${this.screenHeightPx - 130}px`;
       },

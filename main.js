@@ -5,8 +5,8 @@ const app = Vue.createApp({
       drawer: false,
       tableItems: [],
       loadingData: false,
-      //route: 'http://localhost:8081',
-      route: 'http://192.168.0.162:8080',
+      // route: 'http://localhost:8081',
+      // //route: 'http://192.168.0.162:8080',
     }
   },
 
@@ -46,6 +46,10 @@ const app = Vue.createApp({
     async getSuggestionToBuy() {
       this.loadingData = true;
       const suggestionToBuy = await this.doQuery('/');
+
+      console.log({suggestionToBuy});
+
+      console.log({suggestionToBuy: suggestionToBuy.filter(item => item.item == 'ENFB-0005')});
       const noSalesItems = await this.doQuery('/no-sales-items');
 
       noSalesItems.forEach(item => {
@@ -68,11 +72,20 @@ const app = Vue.createApp({
     },
 
     getRoute(resource) {
-      return this.route + resource;
+      return this.computedRoute + resource;
     },
   },
 
   computed: {
+    computedRoute() {
+      let currentRoute = window.location.href;
+      currentRoute = currentRoute.split('//')[1];
+      currentRoute = currentRoute.split(':')[0];
+
+      if(currentRoute == 'localhost' || currentRoute == '/C') return 'http://localhost:8081';
+
+      return `http://${currentRoute}:8080`;
+    },
     currentReportComponent() {
       if(!this.currentReport?.report) return null;
       if(this.currentReport.report == 'Productos vendidos') return 'report-sold-products';
