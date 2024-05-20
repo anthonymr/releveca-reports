@@ -238,7 +238,7 @@ const ReportSuggestionToBuy = {
           };
         });
   
-        return mappedItems.filter(item => {
+        const filtered = mappedItems.filter(item => {
           return Object.keys(this.filters).every(key => {
             const filterValue = this.filters[key].toLowerCase();
             if (filterValue === '') return true;
@@ -248,6 +248,29 @@ const ReportSuggestionToBuy = {
             return item[key].toString().toLowerCase().includes(filterValue);
           });
         });
+
+        if(!filtered.length){
+          return [{
+            'Artículo': '',
+            'Descripción': '',
+            'OEM': '',
+            'Sublínea': '',
+            'Vendido': '',
+            'Stock': '',
+            'Apartado': '',
+            'En espera': '',
+            'Proveedor': '',
+            'Fecha': '',
+            'Costo': '',
+            'Cantidad': '',
+            'Vendido por mes': '',
+            'Meses de stock': '',
+            'Sugerencia': '',
+            'Comprar': '',
+          }]
+        }
+
+        return filtered;
       },
 
       currentDate() {
