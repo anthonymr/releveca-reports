@@ -21,16 +21,28 @@ const ReportConfiguration = {
             />
 
             <span v-if="!isPurchaseSuggestions && canShowForm">
-                <v-label>Desde</v-label>
-                <input class="date-input" :type="inputFieldType" v-model="from">
-
-                <v-label class="mt-2">Hasta</v-label>
-                <input class="date-input" :type="inputFieldType" v-model="to">
+                <v-label>Seleccione un rango</v-label>
+                <v-date-picker
+                    v-model="range"
+                    hide-header
+                    landscape
+                    show-adjacent-months
+                    multiple="range"
+                    view-mode="month"
+                />
             </span>
 
             <span v-else-if="canShowForm">
                 <v-label>Evaluar desde</v-label>
-                <input class="date-input" type="month" v-model="evaluateFrom">
+                <!-- <input class="date-input" type="month" v-model="evaluateFrom"> -->
+
+                <v-date-picker
+                    v-model="simple"
+                    hide-header
+                    landscape
+                    show-adjacent-months
+                    view-mode="month"
+                />
 
                 <v-label class="mt-2">Meses en llegar el pedido</v-label>
                 <v-text-field
@@ -71,10 +83,9 @@ const ReportConfiguration = {
             selectedCompany: null,
             selectedReport: null,
 
-            from: null,
-            to: null,
+            range: [],
+            simple: null,
 
-            evaluateFrom: null,
             monthToArrive: 5,
             minStock: 6,
 
@@ -173,6 +184,33 @@ const ReportConfiguration = {
     },
 
     computed: {
+        evaluateFrom() {
+            if(!this.simple) return null;
+
+            const date = new Date(this.simple);
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            return `${year}-${month}`;
+        },
+        from() {
+            if(!this.range.length) return null;
+
+            const date = new Date(this.range[0]);
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
+        to() {
+            if(this.range.length < 2) return null;
+
+            const date = new Date(this.range.at(-1));
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
+
         inputFieldType() {
             return this.isNotesRange ? 'number' : 'date';
         },
