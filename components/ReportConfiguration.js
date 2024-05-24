@@ -34,15 +34,25 @@ const ReportConfiguration = {
 
             <span v-else-if="canShowForm">
                 <v-label>Evaluar desde</v-label>
-                <!-- <input class="date-input" type="month" v-model="evaluateFrom"> -->
+                <div class="d-flex ga-2">
+                    <v-select
+                        class="w-50"
+                        v-model="simpleMonth"
+                        variant="outlined"
+                        density="compact"
+                        :items="months"
+                        item-value="value"
+                        item-title="text"
+                    />
 
-                <v-date-picker
-                    v-model="simple"
-                    hide-header
-                    landscape
-                    show-adjacent-months
-                    view-mode="month"
-                />
+                    <v-select
+                        class="w-50"
+                        v-model="simpleYear"
+                        variant="outlined"
+                        density="compact"
+                        :items="years"
+                    />
+                </div>
 
                 <v-label class="mt-2">Meses en llegar el pedido</v-label>
                 <v-text-field
@@ -84,7 +94,10 @@ const ReportConfiguration = {
             selectedReport: null,
 
             range: [],
-            simple: null,
+
+            // last month
+            simpleMonth: (new Date()).getMonth() + 1,
+            simpleYear: (new Date()).getFullYear(),
 
             monthToArrive: 5,
             minStock: 6,
@@ -184,14 +197,22 @@ const ReportConfiguration = {
     },
 
     computed: {
-        evaluateFrom() {
-            if(!this.simple) return null;
+        months() {
+            return Array.from({length: 12}, (_, i) => ({ value: i + 1, text: new Date(0, i).toLocaleString('es-ES', { month: 'long' }) }));
+        },
 
-            const date = new Date(this.simple);
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        years() {
+            return Array.from({length: 5}, (_, i) => (new Date().getFullYear() - i).toString());
+        },
+
+        evaluateFrom() {
+            if(!this.simpleMonth || !this.simpleYear) return null;
+
+            const year = this.simpleYear;
+            const month = this.simpleMonth.toString().padStart(2, '0');
             return `${year}-${month}`;
         },
+
         from() {
             if(!this.range.length) return null;
 

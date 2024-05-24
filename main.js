@@ -45,23 +45,29 @@ const app = Vue.createApp({
 
     async getSuggestionToBuy() {
       this.loadingData = true;
-      const suggestionToBuy = await this.doQuery('/');
+      // remove duplicated co_art
+      const suggestionToBuy = (await this.doQuery('/'))
 
-      console.log({suggestionToBuy});
+      const uniqueItems = [];
 
-      console.log({suggestionToBuy: suggestionToBuy.filter(item => item.item == 'ENFB-0005')});
+      suggestionToBuy.forEach(item => {
+        if(uniqueItems.findIndex(transaction => transaction.item == item.item) == -1){
+          uniqueItems.push(item);
+        }
+      });
+
       const noSalesItems = await this.doQuery('/no-sales-items');
 
       noSalesItems.forEach(item => {
-        if(suggestionToBuy.findIndex(transaction => transaction.item == item.item) == -1){
-          suggestionToBuy.push({
+        if(uniqueItems.findIndex(transaction => transaction.item == item.item) == -1){
+          uniqueItems.push({
             ...item,
             amount_to_buy: '',
           });
         }
       });
 
-      this.tableItems = suggestionToBuy;
+      this.tableItems = uniqueItems;
       this.loadingData = false;
     },
 
