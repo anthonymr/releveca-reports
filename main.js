@@ -50,9 +50,6 @@ const app = Vue.createApp({
 
       const uniqueItems = [];
 
-      suggestionToBuy.forEach(item => {
-        console.log(item.item)
-      });
 
       suggestionToBuy.forEach(item => {
         if(uniqueItems.findIndex(transaction => transaction.item == item.item) == -1){
@@ -60,9 +57,13 @@ const app = Vue.createApp({
         }
       });
 
-      const noSalesItems = await this.doQuery('/no-sales-items');
+      const otherItems = await this.doQuery('/all-items');
 
-      noSalesItems.forEach(item => {
+      otherItems.forEach(item => {
+        console.log(item.item)
+      });
+
+      otherItems.forEach(item => {
         if(uniqueItems.findIndex(transaction => transaction.item == item.item) == -1){
           uniqueItems.push({
             ...item,

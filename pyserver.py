@@ -235,6 +235,41 @@ def noSalesItems():
     """
     return SQLGet(query, corporation)
 
+@app.route('/all-items', methods=['GET'])
+def allItems():
+    tomorrow = datetime.now()  + timedelta(days=1)
+
+    corporation = request.args.get('corporation', default = '', type = str)
+
+    if corporation == '':
+      return 'ERROR: No corporation provided'
+
+    from_date = request.args.get('from', default = '1999-01-01 00:00:00', type = str)
+    to_date = request.args.get('to', default = tomorrow, type = str)
+
+    from_date = str(from_date).replace('-', '').split('.')[0]
+    to_date = str(to_date).replace('-', '').split('.')[0]
+
+    query = f"""
+      select
+        0 as count,
+        0 as total,
+        co_art as item,
+        art_des as description,
+        stock_act as stock, 
+        stock_com as stock_comprometido,
+        stock_lle as stock_esperando,
+        prov.prov_des as provider_description,
+        art.ult_cos_om as last_cost,
+        art.fec_ult_om as last_cost_date,
+        sub_lin.subl_des as sub_line,
+        art.modelo as ref
+      from art 
+      left join prov on art.co_prov = prov.co_prov
+      left join sub_lin on sub_lin.co_subl = art.co_subl
+    """
+    return SQLGet(query, corporation)
+
 @app.route('/per-id-range', methods=['GET'])
 def perIdRange():
     corporation = request.args.get('corporation', default = '', type = str)
