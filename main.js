@@ -60,10 +60,6 @@ const app = Vue.createApp({
       const otherItems = await this.doQuery('/all-items');
 
       otherItems.forEach(item => {
-        console.log(item.item)
-      });
-
-      otherItems.forEach(item => {
         if(uniqueItems.findIndex(transaction => transaction.item == item.item) == -1){
           uniqueItems.push({
             ...item,
