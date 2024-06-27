@@ -187,6 +187,7 @@ const ReportSuggestionToBuy = {
       orderSugesstion(monthInStock) {
         if ( monthInStock < this.currentReport.minStock ) return '¡comprar!';
         if ( monthInStock == this.currentReport.minStock ) return 'comprar';
+        if ( monthInStock <= this.currentReport.minStock + 1) return 'comprar';
         if ( monthInStock > this.currentReport.minStock + 12 ) return '¡sobre existencia!';
         return 'no comprar';
       },
